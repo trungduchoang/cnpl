@@ -4,6 +4,8 @@ use App\Http\Controllers\Api\Auth\XidCallbackController;
 use App\Http\Controllers\Api\Callback\CallbackController;
 use App\Http\Controllers\Auth\ConfirmController;
 use App\Http\Controllers\Liff\LiffLoginController;
+use App\Http\Controllers\Fido\FidoSignInController;
+use App\Http\Controllers\Fido\FidoSignUpController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\Liff\LiffRedirectController;
@@ -33,7 +35,10 @@ Route::group(['prefix' => 'auth', 'as' => 'auth.'], function() {
     Route::get('callback', CallbackController::class);
     Route::get('callback/xid', XidCallbackController::class);
 
-
+    Route::group(['prefix' => 'fido', 'as' => 'fido.'], function() {
+        Route::get('/signup', FidoSignUpController::class);
+        Route::get('/signin', FidoSignInController::class);
+    });
     
     Route::group(['prefix' => 'signin-form', 'as' => 'signin-form.'], function() {
         Route::get('/confirm', [ConfirmController::class, 'signinConfirmForm']);

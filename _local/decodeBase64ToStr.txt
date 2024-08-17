@@ -1,0 +1,32 @@
+(()=>{
+    function base64ToArrayBuffer(base64) {
+        const binaryString = window.atob(base64);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes.buffer;
+    }
+    
+    
+    const decodedClientData = JSON.parse(new TextDecoder().decode(base64ToArrayBuffer('eyJ0eXBlIjoid2ViYXV0aG4uY3JlYXRlIiwiY2hhbGxlbmdlIjoiS0dIbEU0NXdoRS1YVXdqNFRqTkNUVEttZ19zIiwib3JpZ2luIjoiaHR0cHM6Ly9lYTljLTI0MDItODAwLTYzMTItZjdmNS1jY2IxLThjM2ItM2QwYy02OTUwLm5ncm9rLWZyZWUuYXBwIiwiY3Jvc3NPcmlnaW4iOmZhbHNlfQ==')));
+    console.log('Decoded clientDataJSON:', decodedClientData);
+})()
+
+        function base64ToObj(base64) {
+            try {
+                const binaryString = window.atob(base64);
+                const len = binaryString.length;
+                const bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                const bufferResult = bytes.buffer;
+                return JSON.parse(new TextDecoder().decode(bufferResult))
+            } catch (e) {
+                return {
+                    error: e
+                }
+            }
+        }
