@@ -1,0 +1,36 @@
+# Version 1.0.0
+
+version: "3"
+
+services:
+  app:
+    volumes: &appvolumes
+      # Host mounts with performance penalty, only put what is necessary here
+      # Option 1: Mount only folders we need
+      # - ./src/app/code:/var/www/html/app/code:cached
+      # - ./src/app/design:/var/www/html/app/design:cached
+      # - ./src/app/etc:/var/www/html/app/etc
+      # - ./src/pub/static:/var/www/html/pub/static:cached
+      # - ./src/generated:/var/www/html/generated:cached
+      # - ./src/composer.json:/var/www/html/composer.json
+      # - ./src/composer.lock:/var/www/html/composer.lock
+      # - ./src/var/log:/var/www/html/var/log:delegated
+      # - ./src/var/report:/var/www/html/var/report:delegated
+      # - ./src/m2-hotfixes:/var/www/html/m2-hotfixes:cached
+#       - ./src/patches:/var/www/html/patches:cached
+      #./src/auth.json:/var/www/html/auth.json:cached
+      # - ./src/nginx.conf.sample:/var/www/html/nginx.conf:delegated
+      # Option(Linux only): remove the above lines and mount the entire src directory with:
+      - ./src:/var/www/html:cached
+
+  phpfpm:
+    volumes: *appvolumes
+    # Warning: this will impact your debug functionality
+    # Linux only: host.docker.internal doesn't exist https://github.com/docker/for-linux/issues/264
+    # Uncomment two lines below & replace IP with result of: docker run --rm alpine ip route | awk 'NR==1 {print $3}'
+    extra_hosts:
+      - "host.docker.internal:172.17.0.1"
+
+  # Disabling cron by default as it uses higher CPU, enable if needed
+  #cron:
+  #  volumes: *appvolumes

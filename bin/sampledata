@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "Deploying sample data...Make sure you are in developer mode!"
+bin/magento sampledata:deploy
+
+echo "Running setup upgrade..."
+bin/magento setup:upgrade

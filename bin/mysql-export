@@ -1,0 +1,16 @@
+#!/bin/bash
+
+DB=""
+BACKUP=""
+
+read -p "Dabase to export (Ex: magento): " -e DB
+read -p "Backup file (Ex: mysql/magento.sql): " -e BACKUP
+
+if [ -n "$DB" ] && [ -n "$BACKUP" ]; 
+then
+    source env/db.env
+    bin/cli mysqldump -hdb -u${MYSQL_USER} -p${MYSQL_PASSWORD} ${DB} > ${BACKUP}
+    echo "The database is successfully exported at ${BACKUP}"
+else
+    echo "Invalid Input"
+fi

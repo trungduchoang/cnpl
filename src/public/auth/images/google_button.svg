@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="764px" height="170px" viewBox="0 0 764 170" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>google</title>
+    <defs>
+        <filter x="-1.8%" y="-8.8%" width="103.5%" height="117.6%" filterUnits="objectBoundingBox" id="filter-1">
+            <feOffset dx="1" dy="2" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="2" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter1" result="shadowMatrixOuter1"></feColorMatrix>
+            <feMerge>
+                <feMergeNode in="shadowMatrixOuter1"></feMergeNode>
+                <feMergeNode in="SourceGraphic"></feMergeNode>
+            </feMerge>
+        </filter>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="google">
+            <rect id="Rectangle-14" fill-opacity="0" fill="#4285F4" fill-rule="nonzero" x="0" y="0" width="764" height="169.777778"></rect>
+            <g id="button-bg" filter="url(#filter-1)" transform="translate(11.072464, 11.072464)">
+                <g id="path-1-link" fill="#000000" fill-rule="nonzero" stroke="#979797">
+                    <rect id="path-1" x="0" y="0" width="741.855072" height="147.63285" rx="7.38164251"></rect>
+                </g>
+                <g id="path-1-link" fill="#FFFFFF">
+                    <rect id="path-1" x="0" y="0" width="741.855072" height="147.63285" rx="7.38164251"></rect>
+                </g>
+            </g>
+            <g id="logo_googleg_48dp" transform="translate(51.671498, 51.671498)">
+                <path d="M65.106087,33.972332 C65.106087,31.616917 64.8947037,29.3520949 64.5021343,27.1778656 L33.2173913,27.1778656 L33.2173913,40.0269565 L51.0943875,40.0269565 C50.3243478,44.1791304 47.9840317,47.6971541 44.466008,50.052569 L44.466008,58.3871148 L55.2012647,58.3871148 C61.4823715,52.6042689 65.106087,44.0885374 65.106087,33.972332 L65.106087,33.972332 Z" id="Shape" fill="#4285F4" fill-rule="nonzero"></path>
+                <path d="M33.2173913,66.4347826 C42.186087,66.4347826 49.7052963,63.4603162 55.2012647,58.3871148 L44.466008,50.052569 C41.4915416,52.0456125 37.6866403,53.22332 33.2173913,53.22332 C24.5657707,53.22332 17.2428458,47.380079 14.630751,39.5286957 L3.53312253,39.5286957 L3.53312253,48.1350198 C8.99889329,58.9910671 20.2324111,66.4347826 33.2173913,66.4347826 L33.2173913,66.4347826 Z" id="Shape" fill="#34A853" fill-rule="nonzero"></path>
+                <path d="M14.630751,39.5286957 C13.9664032,37.5356522 13.5889328,35.4067194 13.5889328,33.2173913 C13.5889328,31.0280632 13.9664032,28.8991304 14.630751,26.906087 L14.630751,18.2997629 L3.53312253,18.2997629 C1.28339921,22.7841107 0,27.8573122 0,33.2173913 C0,38.5774703 1.28339921,43.650672 3.53312253,48.1350198 L14.630751,39.5286957 L14.630751,39.5286957 Z" id="Shape" fill="#FBBC05" fill-rule="nonzero"></path>
+                <path d="M33.2173913,13.2114624 C38.0943082,13.2114624 42.4729645,14.8874308 45.9154939,18.1789723 L55.4428459,8.65162056 C49.6901976,3.2915415 42.1709882,0 33.2173913,0 C20.2324111,0 8.99889329,7.44371541 3.53312253,18.2997629 L14.630751,26.906087 C17.2428458,19.0547035 24.5657707,13.2114624 33.2173913,13.2114624 L33.2173913,13.2114624 Z" id="Shape" fill="#EA4335" fill-rule="nonzero"></path>
+                <polygon id="Shape" points="0 0 66.4347826 0 66.4347826 66.4347826 0 66.4347826"></polygon>
+            </g>
+            <g id="Googleでサインイン" transform="translate(195.613527, 55.362319)" fill="#000000" fill-opacity="0.54" fill-rule="nonzero" font-size="51.6714976">
+                <text id="Google" font-family="Helvetica" font-weight="normal">
+                    <tspan x="0" y="50">Google</tspan>
+                </text>
+                <text id="でサインイン" font-family="HiraginoSans-W1, Hiragino Sans" font-weight="300">
+                    <tspan x="171.464598" y="52.3816425">でサインイン</tspan>
+                </text>
+            </g>
+        </g>
+    </g>
+</svg>

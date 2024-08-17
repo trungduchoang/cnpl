@@ -1,0 +1,16 @@
+#!/bin/bash
+
+cp $PWD/pwa-studio/packages/venia-concept/deployVeniaSampleData.sh $PWD/src/
+#copy ssh key for github - in case...
+echo "copy key..."
+docker cp $HOME/.ssh/id_rsa $(docker compose ps -q phpfpm|awk '{print $1}'):/var/www/.ssh/
+docker cp $HOME/.ssh/id_rsa.pub $(docker compose ps -q phpfpm|awk '{print $1}'):/var/www/.ssh/
+bin/clinotty chmod 600 /var/www/.ssh/*
+export COMPOSER_PROCESS_TIMEOUT=1800
+#copy and run
+bin/copytocontainer deployVeniaSampleData.sh
+bin/cli bash deployVeniaSampleData.sh
+#magento
+bin/magento setup:upgrade
+bin/magento indexer:reindex
+bin/magento cache:c

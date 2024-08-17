@@ -1,0 +1,11 @@
+#!/bin/bash
+source env/db.env
+
+if [ -z "$1" ];
+then
+    bin/cli mysql -hdb -u${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} -A "$@"
+else
+    bin/clinotty mysql -hdb -u${MYSQL_USER} -p${MYSQL_PASSWORD} -A -e "$@"
+fi
+
+

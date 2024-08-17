@@ -1,0 +1,25 @@
+#!/bin/bash
+
+DB=""
+IMPORT=""
+
+if [ -n "$1" ] && [ -n "$2" ];
+then
+DB=$1
+IMPORT=$2
+fi
+
+if [ -z "$DB" ] && [ -z "$IMPORT" ]; 
+then
+    read -p "Dabase to import (magento): " -e DB
+    read -p "Import file (mysql/magento.sql): " -e IMPORT
+fi
+
+if [ -n "$DB" ] && [ -n "$IMPORT" ]; 
+then
+    source env/db.env
+    bin/clinotty mysql -hdb -u${MYSQL_USER} -p${MYSQL_PASSWORD} ${DB} < ${IMPORT}
+    echo "The database ${DB} is successfully imported!"
+else
+    echo "Invalid input"
+fi
