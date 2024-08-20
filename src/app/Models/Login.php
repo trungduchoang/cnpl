@@ -51,7 +51,7 @@ class Login extends Model
         return $value;
     }
 
-    public static function login($cookie, $userName, $projectId)
+    public static function login($cookie, $userName, $projectId, $userAgent = null, $ipAddress = null)
     {
         try {
             if (Login::where('oauth_username', $userName)->where('team_id', $projectId)->exists()) {
@@ -63,7 +63,7 @@ class Login extends Model
                 Login::where('cookie', $cookie)->where('team_id', $projectId)->update(['oauth_username' => $userName]);
                 return;
             }
-            Login::create(['cookie' => $cookie, 'team_id' => $projectId, 'oauth_username' => $userName]);
+            Login::create(['cookie' => $cookie, 'team_id' => $projectId, 'oauth_username' => $userName, 'ip' => $ipAddress, 'user_agent' => $userAgent]);
         } catch (\Exception $e) {
             logger($e);
             throw new \Exception('db error', 500);

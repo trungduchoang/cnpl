@@ -29,10 +29,9 @@ class SignupAssertionResultUseCase
 
     public function __construct()
     {
-       
         $this->cookieHandleService = app()->make(CookieHandleService::class);
         $this->base64UrlService = app()->make(Base64UrlService::class);
-       // $this->cognitoClient = app()->make(CognitoClient::class);
+        // $this->cognitoClient = app()->make(CognitoClient::class);
     }
 
     /**
@@ -46,34 +45,40 @@ class SignupAssertionResultUseCase
         try {
             DB::beginTransaction();
             list($id, $clientDataJson, $attestationObject, $projectId, $cognito) = $request->getParam($request);
-            
             $clientDataJson = $this->decodeClientDataJson($clientDataJson);
-
-           // $attestationObject = $this->decodeAttestationObjectDecode($attestationObject);
-
-            $cookie = "";
-           // $cookie = 'hodongnhut';
-
-            $userName = $cognito ? Str::random(10) : '';
-            // $pem = $this->getPem($attestationObject['authData']);
-            $pem = (string) Str::uuid();
-            $options = $this->getAttestationOptions($clientDataJson['challenge']);
-            $this->validateClientDataJson($clientDataJson, $options);
-            
-            $this->createCredentials([
-                'cookie'         => $cookie,
-                'oauth_username' => $userName,
-                'credential_id'  => $id,
-                'pem'            => $pem,
-                'project_id'     => $projectId    
-            ]);
-            // if ($cognito) {
-            //     $email = $this->generateEmail();
-            //     $password = $this->generatePassword();
-            //    // $this->signupWithWebauthnApiRequest($userName, $email, $password);
-            // }
-            $this->upsertLogin($cookie, $userName, $projectId);
-           // $this->createLoginLog($cookie, $userName);
+            $attestationObject = $this->decodeAttestationObjectDecode($attestationObject);
+            $cookie = $this->getCookie($request);
+            $userName = $cognito ? $this->generateUserName('webauthn', $cookie) : Str::random(10);
+            $pem = $this->getPem($attestationObject['authData']);
+            $base64Challenge = $this->decodeHexChallenge($clientDataJson['challenge']);
+            $options = $this->getAttestationOptions($base64Challenge);
+            $this->validateClientDataJson($clientDataJson, $options, $base64Challenge);
+            $existedCredentials = Credentials::getCredentials($cookie, $projectId);
+            if (is_null($existedCredentials)) {
+                $this->createCredentials([
+                    'cookie' => $cookie,
+                    'oauth_username' => $userName,
+                    'credential_id' => $id,
+                    'pem' => $pem,
+                    'project_id' => $projectId
+                ]);
+            } else
+                throw new \Exception("Credential existed!", 409);
+            if ($cognito) {
+                $email = $this->generateEmail();
+                $password = $this->generatePassword();
+                $this->signupWithWebauthnApiRequest($userName, $email, $password);
+            }
+            $userAgent = $request->header('User-Agent');
+            $ipAddress = $request->header('X-Forwarded-For') ?: $request->ip();
+            $this->upsertLogin(
+                $cookie,
+                $userName,
+                $projectId,
+                $userAgent,
+                $ipAddress
+            );
+            $this->createLoginLog($cookie, $userName);
             DB::commit();
         } catch (CognitoIdentityProviderException $e) {
             DB::rollback();
@@ -121,12 +126,15 @@ class SignupAssertionResultUseCase
     private function decodeAttestationObjectDecode(string $attestationObject): mixed
     {
         $attestationObject = $this->base64UrlDecode($attestationObject);
-        $attestationObject = json_decode($attestationObject, true);
-        // $attestationObject = $this->cborDecode($attestationObject);
-        // $attestationObject['attStmt']['sig'] = $this->cborDecode($attestationObject['attStmt']['sig']->get_byte_string());
-        // $attestationObject['authData'] = array_values(unpack('C*', $attestationObject['authData']->get_byte_string()));
-        $attestationObject['attStmt']['sig'] = $attestationObject['attStmt']['sig'];
-        $attestationObject['authData'] = $attestationObject['authData'];
+        $attestationObject = $this->cborDecode($attestationObject);
+        if (isset($attestationObject['attStmt']['sig'])) {
+            try {
+                $attestationObject['attStmt']['sig'] = $this->cborDecode($attestationObject['attStmt']['sig']->get_byte_string());
+            } catch (\Exception $e) {
+                logger($e);
+            }
+        }
+        $attestationObject['authData'] = array_values(unpack('C*', $attestationObject['authData']->get_byte_string()));
         return $attestationObject;
     }
 
@@ -170,14 +178,14 @@ class SignupAssertionResultUseCase
             $publicKeyJwk = [
                 'kty' => 'EC',
                 'crv' => 'P-256',
-                'x'   => Base64Url::encode($publicKeyCbor[-2]),
-                'y'   => Base64Url::encode($publicKeyCbor[-3])
+                'x' => Base64Url::encode($publicKeyCbor[-2]),
+                'y' => Base64Url::encode($publicKeyCbor[-3])
             ];
         } elseif ($publicKeyCbor[3] === -257) {
             $publicKeyJwk = [
                 'kty' => 'RSA',
-                'n'   => Base64Url::encode($publicKeyCbor[-1]),
-                'e'   => Base64Url::encode($publicKeyCbor[-2])
+                'n' => Base64Url::encode($publicKeyCbor[-1]),
+                'e' => Base64Url::encode($publicKeyCbor[-2])
             ];
         }
         return $publicKeyJwk;
@@ -286,11 +294,36 @@ class SignupAssertionResultUseCase
     private function getAttestationOptions(string $challenge): array
     {
         try {
-            $data = AttestationOpstions::getAttestationOpsions($challenge);  
+            $data = AttestationOpstions::getAttestationOpsions($challenge);
             return ['challenge' => $data->challenge, 'id' => $data->id, 'origin' => $data->origin];
         } catch (\Exception $e) {
             logger($e);
             throw new \Exception('db error', 500);
+        }
+    }
+
+    /**
+     * convert challenge to base64
+     *
+     * @param string $challenge
+     * @return string
+     */
+    private function decodeHexChallenge(string $challenge): string
+    {
+        try {
+            $binaryString = base64_decode(strtr($challenge, '-_', '+/'));
+            $base64Challenge = '';
+            for ($i = 0; $i < strlen($binaryString); $i++) {
+                $hexByte = dechex(ord($binaryString[$i]));
+                if (strlen($hexByte) === 1) {
+                    $hexByte = '0' . $hexByte;
+                }
+                $base64Challenge .= $hexByte;
+            }
+            return $base64Challenge;
+        } catch (\Exception $e) {
+            logger($e);
+            throw new \Exception('Convert challenge to hex error', 500);
         }
     }
 
@@ -301,12 +334,12 @@ class SignupAssertionResultUseCase
      * @param array $options
      * @return boolean
      */
-    private function validateClientDataJson(array $clientDataJson, array $options): bool
+    private function validateClientDataJson(array $clientDataJson, array $options, string $base64Challenge): bool
     {
         if ($clientDataJson['type'] !== 'webauthn.create') {
             throw new \Exception('credential type is not valid', 400);
         }
-        if ($clientDataJson['challenge'] !== $options['challenge']) {
+        if ($base64Challenge !== $options['challenge']) {
             throw new \Exception('challenge is not valid', 400);
         }
         if ($clientDataJson['origin'] !== $options['origin']) {
@@ -321,15 +354,10 @@ class SignupAssertionResultUseCase
      * @param array $data
      * @return void
      */
-    private function createCredentials(array $data)
+    private function createCredentials(array $data): void
     {
         try {
-            $credentials = Credentials::getCredentials($data['cookie'], $data['project_id']);
-            if (empty($credentials)) {
-                Credentials::createCredentials($data);
-            }
-            return $credentials;
-           
+            Credentials::createCredentials($data);
         } catch (\Exception $e) {
             logger($e);
             throw new \Exception('db error', 500);
@@ -357,9 +385,20 @@ class SignupAssertionResultUseCase
      * @param integer $projectId
      * @return void
      */
-    private function upsertLogin(string $cookie, string $userName, int $projectId): void
-    {
-        Login::login($cookie, $userName, $projectId);
+    private function upsertLogin(
+        string $cookie,
+        string $userName,
+        int $projectId,
+        string $userAgent,
+        string $ipAddress
+    ): void {
+        Login::login(
+            $cookie,
+            $userName,
+            $projectId,
+            $userAgent,
+            $ipAddress
+        );
     }
 
     /**

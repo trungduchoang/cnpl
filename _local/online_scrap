@@ -1,0 +1,37 @@
+https://github.com/trungduchoang/cnpl
+navicat
+https://drive.google.com/drive/folders/1NxR37xvBwOXkn9YLheaegvHRReW6fP6r?usp=sharing
+http://localhost:8080/api/auth/signup/assertion/result
+{
+    "id": "AUVoLzJN54eoFv89O3Q8xwOkQGaOA_yc7hU9oFXCLmKsJomDlFK-30OtWu0zNjK3pW7YVZ5F69Vp",
+    "clientDataJson": "eyJjaGFsbGVuZ2UiOiI0OTJjMTE1NDA2NTQxMjg2YjE5MTE1NGM3NWFlM2UyNGY0N2RhNGQ2IiwidHlwZSI6IndlYmF1dGhuLmNyZWF0ZSIsIm9yaWdpbiI6Imh0dHBzOnBsYXRlLmlkIn0",
+    "attestationObject": "eyJhdHRTdG10Ijp7InNpZyI6IjExMTExMTExMTExMTExMTExIn0sImF1dGhEYXRhIjoiMjIyMjIifQ",
+    "projectId": "1111",
+    "cognito": 1
+}
+
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+docker_composer ps
+docker cp default.conf 061fb731e9e0aa864e0530298b18b398ed897ad5e9c2445c434e7d156594bb77:/etc/nginx/conf.d/
+docker cp nginx.conf 061fb731e9e0aa864e0530298b18b398ed897ad5e9c2445c434e7d156594bb77:/etc/nginx/
+docker restart 061fb731e9e0aa864e0530298b18b398ed897ad5e9c2445c434e7d156594bb77
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+docker cp default.conf 061fb731e9e0aa864e0530298b18b398ed897ad5e9c2445c434e7d156594bb77:/etc/nginx/conf.d/
+sudo apt install -y mysql-client
+sudo chown $USER /var/run/docker.sock
+
+
+sudo chown -R www-data:www-data src/
+liver@liver-IdeaPad-Gaming-3-15IMH05:~/docker-project$ sudo chmod -R 755 src/
+liver@liver-IdeaPad-Gaming-3-15IMH05:~/docker-project$ ls -la src/public/
+total 28
+drwxr-xr-x  3 www-data www-data 4096 Thg 6  28 17:08 .
+drwxr-xr-x 12 www-data www-data 4096 Thg 7  30 12:30 ..
+drwxr-xr-x  5 www-data www-data 4096 Thg 6  28 17:08 auth
+-rwxr-xr-x  1 www-data www-data    0 Thg 6  28 17:08 favicon.ico
+-rwxr-xr-x  1 www-data www-data  603 Thg 6  28 17:08 .htaccess
+-rwxr-xr-x  1 www-data www-data 1735 Thg 6  28 17:08 index.php
+-rwxr-xr-x  1 www-data www-data   24 Thg 6  28 17:08 robots.txt
+-rwxr-xr-x  1 www-data www-data 1183 Thg 6  28 17:08 web.config
+liver@liver-IdeaPad-Gaming-3-15IMH05:~/docker-project$ sudo chmod -R 777 src/
+liver@liver-IdeaPad-Gaming-3-15IMH05:~/docker-project$ 

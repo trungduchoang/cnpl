@@ -80,7 +80,7 @@ class Credentials extends Model
      * @param string $userName
      * @return object
      */
-    public static function getCredentials(string $cookie, string $projectId): object
+    public static function getCredentials(string $cookie, string $projectId): ?object
     {
         $data = Credentials::where('cookie', $cookie)->where('project_id', $projectId)->first();
         return $data;

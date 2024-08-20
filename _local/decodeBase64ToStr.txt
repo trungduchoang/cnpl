@@ -30,3 +30,34 @@
                 }
             }
         }
+
+
+        function base64ToHex($base64) {
+    // Decode the Base64 string (replace URL-safe characters)
+    $binaryString = base64_decode(strtr($base64, '-_', '+/'));
+
+    // Convert binary string to hexadecimal
+    $hex = '';
+    for ($i = 0; $i < strlen($binaryString); $i++) {
+        $hexByte = dechex(ord($binaryString[$i]));
+        if (strlen($hexByte) === 1) {
+            $hexByte = '0' . $hexByte; // Ensure two digits
+        }
+        $hex .= $hexByte;
+    }
+
+    return $hex;
+}
+
+function base64ToHex(base64) {
+    const binaryString = window.atob(base64.replace(/-/g, '+').replace(/_/g, '/')); // Decode Base64url to binary string
+    let hex = '';
+    for (let i = 0; i < binaryString.length; i++) {
+        let hexByte = binaryString.charCodeAt(i).toString(16);
+        if (hexByte.length === 1) {
+            hexByte = '0' + hexByte; // Ensure two digits
+        }
+        hex += hexByte;
+    }
+    return hex;
+}
