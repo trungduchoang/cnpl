@@ -5,8 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIGNUP</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body,
+        html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #signup-btn {
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <button id="signup-btn" onclick="signUp()">Sign Up</button>
+
     <script>
-        window.onload = async function signUp() {
+        async function signUp() {
             const projectId = "222"; // FIXME: Update projectId after getting response from Q&A
             const { origin, host } = window.location;
             const challengeResponse = await axios.request({
@@ -74,12 +95,6 @@
             return array;
         }
     </script>
-</head>
-
-<body>
-    <div id="test">
-
-    </div>
 </body>
 
 </html>
