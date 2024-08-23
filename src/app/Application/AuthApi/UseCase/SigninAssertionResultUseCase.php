@@ -3,7 +3,7 @@
 namespace App\Application\AuthApi\UseCase;
 
 use Illuminate\Support\Facades\DB;
-use App\Cognito\CognitoClient;
+// use App\Cognito\CognitoClient;
 use Aws\CognitoIdentityProvider\Exception\CognitoIdentityProviderException;
 use App\Services\CookieHandleService;
 use App\Services\Base64UrlService;
@@ -24,7 +24,7 @@ class SigninAssertionResultUseCase
     {
         $this->cookieHandleService = app()->make(CookieHandleService::class);
         $this->base64UrlService = app()->make(Base64UrlService::class);
-        $this->cognitoClient = app()->make(CognitoClient::class);
+        // $this->cognitoClient = app()->make(CognitoClient::class);
     }
 
 
@@ -36,9 +36,18 @@ class SigninAssertionResultUseCase
             list($credentialId, $clientDataJson, $authenticatorData, $signature, $projectId, $cognito) = $request->getParam($request);
             $cookie = $this->getCookie($request);
             $clientDataHash = $this->clientDataJsonToHash($clientDataJson);
+            // $clientDataJson:
+            // array:5 [
+            //     "type" => "webauthn.get"
+            //     "challenge" => "uwKobZx1iF2rdb18QCjN57e-lfk"
+            //     "origin" => "https://localhost"
+            //     "crossOrigin" => false
+            //     "other_keys_can_be_added_here" => "do not compare clientDataJSON against a template. See https://goo.gl/yabPex"
+            //   ]
             $clientDataJson = $this->decodeClientDataJson($clientDataJson);
-            $options = $this->getAttestationOptions($clientDataJson['challenge']);
-            $this->validateClientDataJson($clientDataJson, $options);
+            $base64Challenge = $this->decodeHexChallenge($clientDataJson['challenge']);
+            $options = $this->getAttestationOptions($base64Challenge);
+            $this->validateClientDataJson($clientDataJson, $options, $base64Challenge);
             $confirmSig = $this->getConfirmSig($authenticatorData, $clientDataHash);
             $signature = $this->byteArrayToString($signature);
             $pem = $this->getPem($cookie, $projectId);
@@ -119,7 +128,7 @@ class SigninAssertionResultUseCase
         return join($chars);
     }
 
-    
+
     /**
      * hex to string function
      *
@@ -133,7 +142,7 @@ class SigninAssertionResultUseCase
     }
 
 
-     /**
+    /**
      * get attestation options function
      *
      * @param string $challenge
@@ -151,18 +160,43 @@ class SigninAssertionResultUseCase
     }
 
     /**
+     * convert challenge to base64
+     *
+     * @param string $challenge
+     * @return string
+     */
+    private function decodeHexChallenge(string $challenge): string
+    {
+        try {
+            $binaryString = base64_decode(strtr($challenge, '-_', '+/'));
+            $base64Challenge = '';
+            for ($i = 0; $i < strlen($binaryString); $i++) {
+                $hexByte = dechex(ord($binaryString[$i]));
+                if (strlen($hexByte) === 1) {
+                    $hexByte = '0' . $hexByte;
+                }
+                $base64Challenge .= $hexByte;
+            }
+            return $base64Challenge;
+        } catch (\Exception $e) {
+            logger($e);
+            throw new \Exception('Convert challenge to hex error', 500);
+        }
+    }
+
+    /**
      * validate client dataJson function
      *
      * @param array $clientDataJson
      * @param array $options
      * @return boolean
      */
-    private function validateClientDataJson(array $clientDataJson, array $options): bool
+    private function validateClientDataJson(array $clientDataJson, array $options, string $base64Challenge): bool
     {
         if ($clientDataJson['type'] !== 'webauthn.get') {
             throw new \Exception('credential type is not valid', 400);
         }
-        if ($clientDataJson['challenge'] !== $options['challenge']) {
+        if ($base64Challenge !== $options['challenge']) {
             throw new \Exception('challenge is not valid', 400);
         }
         if ($clientDataJson['origin'] !== $options['origin']) {
@@ -170,7 +204,7 @@ class SigninAssertionResultUseCase
         }
         return true;
     }
-    
+
 
 
     /**
@@ -223,7 +257,7 @@ class SigninAssertionResultUseCase
     {
         $response = $this->cognitoClient->secretLoginCode($userName, $code, $session);
         if ($response['AuthenticationResult']['AccessToken']) {
-            return ;
+            return;
         }
         throw new \Exception('authentfication is faild', 400);
     }
