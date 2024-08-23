@@ -14,7 +14,7 @@
                 method: "POST",
                 data: { projectId, origin }
             }).then(res => res).catch(e => {
-                alert(e.message || "Unknown Error!")
+                alert(e.response?.data?.error?.message || e.message || "Unknown Error!")
             });
             const { data: { challenge } } = challengeResponse;
             if (!challenge) throw new Error("Empty challenge response!");
@@ -33,6 +33,7 @@
             })
                 .then(res => res.response)
                 .catch(err => {
+                    console.log(e);
                     alert('Error during credential creation:', err);
                     return null;
                 });
@@ -49,8 +50,11 @@
                     projectId,
                     cognito: 0
                 }
-            }).then(res => res).catch(e => {
-                alert(e.message || "Unknown Error!")
+            }).then(res => {
+                alert("Signing up successfully!")
+            }).catch(e => {
+                console.log(e);
+                alert(e.response?.data?.error?.message || e.message || "Unknown Error!")
             });
         }
         function arrayBufferToBase64(buffer) {

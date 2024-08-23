@@ -63,7 +63,7 @@ class SignupAssertionResultUseCase
                     'project_id' => $projectId
                 ]);
             } else
-                throw new \Exception("Credential existed!", 409);
+                throw new \Exception("Request failed, Credential existed!", 409);
             if ($cognito) {
                 $email = $this->generateEmail();
                 $password = $this->generatePassword();
